@@ -1,0 +1,36 @@
+@font-face {
+    font-family: "purista-semibold";
+    src: url("purista-semibold.ttf");
+}
+#orangeRect {
+	background:#ED8720;
+	border:0;
+	margin-left:416px;
+	margin-top:803px;
+	width:262px;
+	height:29px;
+	opacity: 0.7;
+}
+#blueRect {
+	border:0;
+	background:#29383F;
+	margin-left:0px;
+	margin-top:0px;
+	width:262px;
+	height:29px;
+	opacity: 0.67;
+}
+#item1, #item2, #item3, #item4, #item5{
+	border:0;
+	background:#29383F;
+	margin-left:0px;
+	margin-top:0px;
+	width:262px;
+	height:29px;
+	opacity: 0.67;
+}
+label{
+	font-family: purista-semibold;
+	margin-left:5px;
+	color: #000000;
+}
