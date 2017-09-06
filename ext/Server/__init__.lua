@@ -12,9 +12,6 @@ function MedicRadarServer:OnUpdate(p_Delta, p_SimulationDelta)
 
   self.m_Timer = self.m_Timer + p_Delta
 
-  -- if self.m_Timer % 0.2 ~= 0 then --check 5 times every second
-  --   return
-  -- end
   if self.m_Timer < 1 then --check every second
     return
   end
@@ -50,13 +47,15 @@ function MedicRadarServer:OnUpdate(p_Delta, p_SimulationDelta)
 
           local distance2 =  (s_Victim.x - s_Soldier.transform.trans.x) * (s_Victim.x - s_Soldier.transform.trans.x) + 
             (s_Victim.z - s_Soldier.transform.trans.z) * (s_Victim.z - s_Soldier.transform.trans.z)
-          s_MedicsWithDefib = s_MedicsWithDefib .. s_Player.name .. tostring(distance2)
-        end
+          local distance = math.floor( math.sqrt(distance2) )
 
-        --just for testing
-        local distance2 = (s_Victim.x - 15) * (s_Victim.x - 15) +  (s_Victim.z - 15)*(s_Victim.z - 15)
-        local distance = math.floor( math.sqrt(distance2) )
-        s_MedicsWithDefib = s_MedicsWithDefib .. s_Player.name .. ": " .. tostring(distance) .. " "
+          s_MedicsWithDefib = s_MedicsWithDefib .. s_Player.name .. ": " .. tostring(distance) .. " m. "
+        else --just for testing
+          local distance2 = (s_Victim.x - 15) * (s_Victim.x - 15) +  (s_Victim.z - 15)*(s_Victim.z - 15)
+          local distance = math.floor( math.sqrt(distance2) )
+
+          s_MedicsWithDefib = s_MedicsWithDefib .. s_Player.name .. ": " .. tostring(distance) .. " m. "
+        end
       end
     end
     
@@ -74,11 +73,7 @@ function MedicRadarServer:CheckIfMedic(p_Soldier)
   
 end
 
-function MedicRadarServer:OnPlayerKilled(p_Victim, p_Inflictor, p_Position, p_Weapon, p_RoadKill, p_HeadShot, p_VictimInReviveState)
-  --print("Position: " .. tostring(p_Position))
-  local x = p_Position.x
-  local z = p_Position.z
-  
+function MedicRadarServer:OnPlayerKilled(p_Victim, p_Inflictor, p_Position, p_Weapon, p_RoadKill, p_HeadShot, p_VictimInReviveState)  
   if p_Victim == nil then
 		return
 	end
@@ -90,7 +85,7 @@ function MedicRadarServer:OnPlayerKilled(p_Victim, p_Inflictor, p_Position, p_We
   print("Victim: " .. tostring(p_Victim.name))
   table.insert(self.m_DeadPlayers,{player = p_Victim, time = 10, x = p_Position.x, z = p_Position.z})
   --self.m_DeadPlayers[p_Victim] = {time = 5}
-  NetEvents:SendTo('medicradar:showui', p_Victim, x, z )
+  NetEvents:SendTo('medicradar:showui', p_Victim)
 
 end
 g_MedicRadarServer = MedicRadarServer()
