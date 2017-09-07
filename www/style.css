@@ -1,0 +1,49 @@
+@font-face {
+  font-family: "purista-medium";
+	font-style: normal;
+	font-weight: 600;
+  src: url("purista-medium.ttf");
+}
+#orangeRect {
+	background: linear-gradient(rgba(249,147,43,0.9), rgba(181,109,35,0.9));
+	border:0;
+	margin-left:21.75%;
+	margin-top:42%;
+	width:13.7%;
+	height: 1%
+}
+#list {
+	background-color: rgba(41,56,63,0.8);	
+	border:0;
+	margin-left:21.75%;
+	margin-top:0px;
+	width:13.7%;
+/*	height:70%;*/
+}
+#item1, #item2, #item3, #item4, #item5{
+	border:0;
+	background-color: rgba(41,56,63,0.8);
+/*	margin-left:0px;
+	margin-top:0px;
+	width:262px;
+	height:29px;*/
+}
+#text{
+	color: #FFF;
+/*	margin-top:10%;
+	margin-bottom:10%;*/
+  /*line-height:20%;*/
+}
+#page {
+   width: 100%;
+   height: 100%;
+   overflow: hidden;
+}
+label{
+	font-family: purista-medium;
+	color: #FFF;
+	margin-left:5%;
+	margin-top:10%;
+	margin-bottom:10%;
+	text-shadow:1px 1px 10px #7fccff;
+}
