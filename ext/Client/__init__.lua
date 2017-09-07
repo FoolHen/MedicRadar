@@ -88,7 +88,7 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 
         if self:HasDefib(s_Soldier) then
           local distance2 =  (self.m_DeathPos.x - s_Soldier.transform.trans.x) * (self.m_DeathPos.x - s_Soldier.transform.trans.x) + 
-            (self.m_DeathPos.y - s_Soldier.transform.trans.y) * (self.m_DeathPos.y - s_Soldier.transform.trans.y)
+            (self.m_DeathPos.z - s_Soldier.transform.trans.z) * (self.m_DeathPos.z - s_Soldier.transform.trans.z)
           local distance = math.floor( math.sqrt(distance2) )
 
           s_MedicsWithDefib = s_MedicsWithDefib .. s_Player.name .. ": " .. tostring(distance) .. "m.|"
@@ -100,12 +100,10 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 end
 
 function MedicRadarClient:HasDefib(p_Soldier)
-  local s_Gadget = tostring(s_Soldier:GetWeaponNameByIndex(5)):lower()
-
+  local s_Gadget = tostring(p_Soldier:GetWeaponNameByIndex(5)):lower()
   if s_Gadget == "defib" then
     return true
   end
-
   return false
 end
 
