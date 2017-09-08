@@ -4,7 +4,7 @@ Mod for Battlefield 3 [Venice Unleashed](https://veniceunleashed.net/) made with
 ![Screenshot](https://i.imgur.com/9ip5RBf.jpg)
 ![Screenshot](https://i.imgur.com/AM3jDtO.png) 
 ### Gif
-![Gfycat](https://gfycat.com/WelltodoFittingHousefly)
+https://gfycat.com/WelltodoFittingHousefly
 
 ### Note
 This will only work on update 1.0 or greater of Venice Unleashed. WebUI is already compiled. 
