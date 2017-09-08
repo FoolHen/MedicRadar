@@ -1,38 +1,29 @@
 @font-face {
-  font-family: "purista-medium";
+  font-family: "bffont";
 	font-style: normal;
 	font-weight: 600;
-  src: url("purista-medium.ttf");
+  src: url("bffont.ttf");
 }
 #orangeRect {
 	background: linear-gradient(rgba(249,147,43,0.9), rgba(181,109,35,0.9));
 	border:0;
-	margin-left:21.75%;
-	margin-top:42%;
-	width:13.7%;
-	height: 1%
+	margin-left:21.65%;
+	margin-top:41.8%;
+	width:13.65%;
 }
 #list {
 	background-color: rgba(41,56,63,0.8);	
 	border:0;
-	margin-left:21.75%;
+	margin-left:21.65%;
 	margin-top:0px;
-	width:13.7%;
-/*	height:70%;*/
+	width:13.65%;
 }
-#item1, #item2, #item3, #item4, #item5{
+#item1, #item2, #item3, #item4, #item5, #item6, #item7, #item8, #item9{
 	border:0;
 	background-color: rgba(41,56,63,0.8);
-/*	margin-left:0px;
-	margin-top:0px;
-	width:262px;
-	height:29px;*/
 }
 #text{
 	color: #FFF;
-/*	margin-top:10%;
-	margin-bottom:10%;*/
-  /*line-height:20%;*/
 }
 #page {
    width: 100%;
@@ -40,10 +31,62 @@
    overflow: hidden;
 }
 label{
-	font-family: purista-medium;
+	/*font-family: '$MENU_medium';*/
+	font-family: bffont;
 	color: #FFF;
-	margin-left:5%;
-	margin-top:10%;
-	margin-bottom:10%;
 	text-shadow:1px 1px 10px #7fccff;
+	display: block;
+	overflow: hidden;
+	white-space: nowrap;
+  vertical-align: middle;
+  line-height:1.7em;
+	margin-left:4%;
+}
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
 }

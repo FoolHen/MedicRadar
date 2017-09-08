@@ -13,26 +13,25 @@ function MedicRadarServer:OnPlayerKilled(p_Victim, p_Inflictor, p_Position, p_We
   if p_Victim == nil then
 		return
 	end
-
   --print("Victim: " .. tostring(p_Victim.name))
-  NetEvents:SendTo('medicradar:showui', p_Victim, p_Position)
+  NetEvents:SendTo('medicradar:showui', p_Victim)
 
 end
 
 function MedicRadarServer:OnPlayerDeleted(p_Player)
   --print(p_Player.name .. " OnPlayerDeleted")
-  NetEvents:SendTo('medicradar:clearui', p_Victim)
+  NetEvents:SendTo('medicradar:clearui', p_Player)
 end
 
 function MedicRadarServer:OnPlayerDestroyed(p_Player)
   --print(p_Player.name .. " OnPlayerDestroyed")
-  NetEvents:SendTo('medicradar:clearui', p_Victim)
+  NetEvents:SendTo('medicradar:clearui', p_Player)
 
 end
 
 function MedicRadarServer:OnPlayerTeamChange(p_Player)
   --print(p_Player.name .. " OnPlayerTeamChange")
-  NetEvents:SendTo('medicradar:clearui', p_Victim)
+  NetEvents:SendTo('medicradar:clearui', p_Player)
 
 end
 
