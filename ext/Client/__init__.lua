@@ -19,15 +19,7 @@ function MedicRadarClient:OnLoaded()
 end
 
 function MedicRadarClient:UpdateUI(p_Medics)
-  WebUI:ExecuteJS('removeAll()')
-
-  local s_Messages = split(p_Medics, "|")
-  
-  for i, s_Message in ipairs(s_Messages) do
-    if s_Message ~= nil and i < 10 then
-      WebUI:ExecuteJS('addText("' .. tostring(s_Message) .. '")')
-    end
-  end
+  WebUI:ExecuteJS('addText("' .. tostring(p_Medics) .. '")')
 end
   
 function MedicRadarClient:OnClearUI()
@@ -114,7 +106,6 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
       end
     end
   end
-
   self:UpdateUI(s_MedicsWithDefib)
 end
 
@@ -125,25 +116,5 @@ function MedicRadarClient:HasDefib(p_Soldier)
   end
   return false
 end
-
-function split(pString, pPattern)
-   local Table = {}  -- NOTE: use {n = 0} in Lua-5.0
-   local fpat = "(.-)" .. pPattern
-   local last_end = 1
-   local s, e, cap = pString:find(fpat, 1)
-   while s do
-    if s ~= 1 or cap ~= "" then
-   table.insert(Table,cap)
-    end
-    last_end = e+1
-    s, e, cap = pString:find(fpat, last_end)
-   end
-   if last_end <= #pString then
-    cap = pString:sub(last_end)
-    table.insert(Table, cap)
-   end
-   return Table
-end
-
   
 g_MedicRadarClient = MedicRadarClient()

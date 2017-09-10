@@ -1,24 +1,18 @@
-var i=0;
+var num=0;
 
 function addText(text) {
-    i++;
-    var listed = '<div id="item' + i + '"><label type="text" />' + text + '</div>';
-    document.getElementById("list").innerHTML += listed;
-}
+    var res = text.split("|");
+    removeAll();
 
-function removeAll(){
-    for (i; i > 0; i--) {
-		document.getElementById('item'+i).remove();
+    for (var j = 0;j < res.length; j++) {
+        var listed = '<div id="item' + (j+1) + '"><label type="text" />' + res[j] + '</div>';
+        document.getElementById("list").innerHTML += listed;
     }
-    i=0;
+    num = res.length;
 }
-
-function hideUI(){
-    var x = document.getElementsByTagName("BODY")[0];
-    x.style.display = 'none';
-}
-
-function showUI(){
-    var x = document.getElementsByTagName("BODY")[0];
-    x.style.display = 'block';
+function removeAll(){
+    for (var i = num; i > 0; i--) {
+        document.getElementById('item'+i).remove();
+    }
+    num = 0;
 }
