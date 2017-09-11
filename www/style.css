@@ -6,26 +6,36 @@
     display: none; 
 }
 #orangeRect {
-	background: linear-gradient(rgba(249,147,43,0.9), rgba(181,109,35,0.9));
+	background: linear-gradient(rgba(255, 156, 55, 0.96), rgba(181,109,35,0.96));
 	margin-top: 48.6%;
-	margin-left: 7.5%;
+	margin-left: 7.47%;
 	width:20.5%;
 	height: 4.3%;
 }
 #list {
 	background-color: rgba(41,56,63,0.8);	
 	margin-top:0px;
-	margin-left: 7.5%;
+	margin-left: 7.47%;
 	width:20.5%;
 }
 #item1, #item2, #item3, #item4, #item5, #item6, #item7, #item8, #item9{
 	border:0;
 	background-color: rgba(41,56,63,0.8);
 }
-#text{
-	color: #FFF;
-	font-size: calc(0.55vw + 0.55vh);
-	letter-spacing: -0.2px;
+
+label{
+	/*font-family: '$MENU_medium';*/
+	font-family: bffont;
+	color: white;
+	font-size: calc(0.7vh + 0.6vw);
+	text-shadow:2px 2px 10px #7fccff;
+	display: block;
+	overflow: hidden;
+	white-space: nowrap;
+	vertical-align: middle;
+	line-height:1.7em;
+	margin-left:3%;
+	letter-spacing: 0.3px;
 }
 /* For resolutions lower than 720p */
 .page {
@@ -53,22 +63,13 @@
 		top:0;bottom:0;
 		left:0;right:0;
 		overflow: visible;
-    }
+  }
+  label{
+  	font-size: 16px;
+  }
 }
 
-label{
-	/*font-family: '$MENU_medium';*/
-	font-family: bffont;
-  font-size: calc(0.55vw + 0.55vh);
-	color: #FFF;
-	text-shadow:1px 1px 10px #7fccff;
-	display: block;
-	overflow: hidden;
-	white-space: nowrap;
-  	vertical-align: middle;
-  	line-height:1.7em;
-	margin-left:4%;
-}
+
 /* http://meyerweb.com/eric/tools/css/reset/ 
    v2.0 | 20110126
    License: none (public domain)
@@ -101,6 +102,7 @@ footer, header, hgroup, menu, nav, section {
 }
 body {
 	line-height: 1;
+	overflow: hidden;
 }
 ol, ul {
 	list-style: none;

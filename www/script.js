@@ -2,10 +2,12 @@ var num=0;
 
 function addText(text) {
     var res = text.split("|");
-    removeAll();
+    var limit = Math.min(res.length, 9);
 
-    for (var j = 0;j < res.length; j++) {
-        var listed = '<div id="item' + (j+1) + '"><label type="text" />' + res[j] + '</div>';
+    removeAll();
+    
+    for (var j = 0;j < limit; j++) {
+        var listed = '<div id="item' + (j+1) + '"><label>' + res[j] + '</label></div>';
         document.getElementById("list").innerHTML += listed;
     }
     num = res.length;
