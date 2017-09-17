@@ -1,21 +1,54 @@
 class "MedicRadarClient"
 
 function MedicRadarClient:__init()
-  self.m_ClearUI = NetEvents:Subscribe('medicradar:clearui', self, self.OnClearUI)
-  self.m_ShowUI = NetEvents:Subscribe('medicradar:showui', self, self.OnShowUI)
-  self.m_OnLoadedEvent = Events:Subscribe('ExtensionLoaded', self, self.OnLoaded)
-  self.m_ClientFrameUpdateEvent = Events:Subscribe('Client:PostFrameUpdate', self, self.OnPostFrameUpdate)
+  self:RegisterVars()
+  self:RegisterEvents()
+end
+
+function MedicRadarClient:RegisterVars()
   self.m_Medics = {}
   self.m_DeathPos = {x=0, y=0, z=0}
   self.m_IsClientDead = false
   self.m_DeadTimer = 0
+  self.m_IsUIShown = true
   self.MAX_DISTANCE = 50
+end
+
+function MedicRadarClient:RegisterEvents()
+  self.m_ClearUI = NetEvents:Subscribe('medicradar:clearui', self, self.OnClearUI)
+  self.m_ShowUI = NetEvents:Subscribe('medicradar:showui', self, self.OnShowUI)
+  self.m_OnLoadedEvent = Events:Subscribe('ExtensionLoaded', self, self.OnLoaded)
+  self.m_ClientFrameUpdateEvent = Events:Subscribe('Client:PostFrameUpdate', self, self.OnPostFrameUpdate)
+  self.m_ScreenHook = Hooks:Install('UI:PushScreen', 999, self, self.OnPushScreen)
 end
 
 function MedicRadarClient:OnLoaded()
   print("onloaded called")
   WebUI:Init()
   WebUI:Hide()
+end
+
+function MedicRadarClient:OnPushScreen(p_Hook, p_Screen, p_GraphPriority, p_ParentGraph)
+  if not self.m_IsClientDead then
+    return
+  end
+
+  local s_Screen = UIScreenAsset(p_Screen)
+  local s_Name = s_Screen.name
+
+  if s_Name == "UI/Flow/Screen/IngameMenuMP" then
+    print("IngameMenuMP, hidding ui")
+    self.m_IsUIShown = false
+    WebUI:Hide()
+  end
+
+  if s_Name == "UI/Flow/Screen/SpawnScreenPC" then
+    print("SpawnScreenPC, showing ui")
+    self.m_IsUIShown = true
+    WebUI:Show()
+  end
+
+  p_Hook:Next()
 end
 
 function MedicRadarClient:UpdateUI(p_Medics)
@@ -34,18 +67,17 @@ end
 function MedicRadarClient:OnShowUI()
   print("Recived call from server: showui")
   local s_LocalPlayer = PlayerManager:GetLocalPlayer()
+
   if s_LocalPlayer ~= nil then
     local soldier = s_LocalPlayer.soldier
 
     if soldier ~= nil then
       self.m_DeathPos = {x = soldier.transform.trans.x, y = soldier.transform.trans.y, z = soldier.transform.trans.z}
-      -- print("Got position: " .. tostring(soldier.transform.trans.x) .. 
-      --   " ".. tostring(soldier.transform.trans.y) ..
-      --   " ".. tostring(soldier.transform.trans.z) .. " ")
+      -- print("Got position: " .. tostring(soldier.transform.trans))
     end
   end
   self.m_IsClientDead = true
-  
+  self.m_IsUIShown = true
 end
 
 function MedicRadarClient:OnPostFrameUpdate(p_Delta)
@@ -55,6 +87,10 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 
   self.m_DeadTimer = self.m_DeadTimer + p_Delta
 
+  if not self.m_IsUIShown then 
+    return
+  end
+  
   if self.m_DeadTimer < 1 then --Wait 1 sec before showing ui
     return
   end
@@ -72,7 +108,7 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
   
   local s_LocalSoldier = s_LocalPlayer.soldier
 
-  if s_LocalSoldier ~= nil then
+  if s_LocalSoldier ~= nil then --Player respawned
     self:OnClearUI()
     return
   end
@@ -106,6 +142,9 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
       end
     end
   end
+  -- s_MedicsWithDefib = s_MedicsWithDefib .. "Test" .. ": " .. 1 .. "m.|"
+  -- s_MedicsWithDefib = s_MedicsWithDefib .. "Test" .. ": " .. 2 .. "m.|"
+  -- s_MedicsWithDefib = s_MedicsWithDefib .. "Test" .. ": " .. 3 .. "m.|"
   self:UpdateUI(s_MedicsWithDefib)
 end
 
