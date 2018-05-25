@@ -9,7 +9,7 @@ function MedicRadarServer:OnPlayerKilled(p_Victim, p_Inflictor, p_Position, p_We
 		return
 	end
   -- print("Victim: " .. tostring(p_Victim.name))
-
+  print("revivable: " .. tostring(p_VictimInReviveState))
   NetEvents:SendTo('medicradar:showui', p_Victim, p_Position)
 
 end

@@ -1,9 +1,9 @@
 @font-face {
-  	font-family: "bffont";
+		font-family: "bffont";
 	src: url("bffont.ttf");
 }
 ::-webkit-scrollbar { 
-    display: none; 
+		display: none; 
 }
 #orangeRect {
 	background: linear-gradient(rgba(255, 156, 55, 0.96), rgba(181,109,35,0.96));
@@ -12,7 +12,7 @@
 	width:20.5%;
 	height: 4.3%;
 }
-#item1, #item2, #item3, #item4, #item5, #item6, #item7, #item8, #item9{
+.nameBox{
 	border:0;
 	background-color: rgba(41,56,63,0.8);	
 	margin-top: 0px;
@@ -50,8 +50,8 @@ label{
 
 /* For resolutions higher than 720p */
 @media screen and (min-height: 720px) and (min-width: 1280px){
-  #page {
+	#page {
 		width: 1280px; 
 		height: 720px;
-  }
+	}
 }
