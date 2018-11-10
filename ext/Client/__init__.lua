@@ -9,33 +9,54 @@ function MedicRadarClient:RegisterVars()
 	self.m_DeathPos = {x=0, y=0, z=0}
 	self.m_IsClientDead = false
 	self.m_IsUIShown = true
+	self.m_UpdateTimer = 0
 	self.MAX_DISTANCE = 50
+	self.UPDATE_RATE = 0.5
+	self.MAX_DISPLAY_NUMBER = 6
 end
 
 function MedicRadarClient:RegisterEvents()
-	self.m_ShowUI = NetEvents:Subscribe('medicradar:showui', self, self.ShowUI)
 	self.m_OnLoadedEvent = Events:Subscribe('ExtensionLoaded', self, self.OnLoaded)
 	self.m_ClientFrameUpdateEvent = Events:Subscribe('Client:PostFrameUpdate', self, self.OnPostFrameUpdate)
-	self.m_ScreenHook = Hooks:Install('UI:PushScreen', 999, self, self.OnPushScreen)
-	self.m_EngineMessageEvent = Events:Subscribe('Engine:Message', self, self.OnEngineMessage)
+	self.m_ScreenHook = Hooks:Install('UI:PushScreen', 10, self, self.OnPushScreen)
+	self.m_HealthActionEvent = Events:Subscribe('ClientSoldier:HealthAction', self, self.OnHealthAction)
 end
 
 function MedicRadarClient:OnLoaded()
-	print("onloaded called")
+	--print("onloaded called")
 	WebUI:Init()
 	WebUI:Hide()
 end
 
-function MedicRadarClient:OnEngineMessage(p_Message)
-	if p_Message.type == MessageType.ClientPlayerKilledMessage then 
-		print("ClientPlayerKilledMessage")
-
-		self:ClearUI()
+function MedicRadarClient:OnHealthAction(p_Soldier, p_HealthStateAction)
+	if p_Soldier == nil then
+		return
 	end
 
-	if p_Message.type == MessageType.ClientPlayerSwitchTeamMessage then 
-		print("ClientPlayerSwitchTeamMessage")
+	local s_LocalPlayer = PlayerManager:GetLocalPlayer()
+	if s_LocalPlayer == nil then
+		return
+	end
 
+	local s_LocalSoldier = s_LocalPlayer.soldier
+
+	if s_LocalSoldier == nil then
+		s_LocalSoldier = s_LocalPlayer.corpse
+
+		if s_LocalSoldier == nil then
+			return
+		end
+	end
+
+	if  s_LocalSoldier ~= p_Soldier then
+		return
+	end
+
+	if p_HealthStateAction == HealthStateAction.OnManDown then
+		--print("OnManDown")
+		self:ShowUI()
+	elseif p_HealthStateAction == HealthStateAction.OnDead then
+		--print("OnDead")
 		self:ClearUI()
 	end
 end
@@ -49,13 +70,13 @@ function MedicRadarClient:OnPushScreen(p_Hook, p_Screen, p_GraphPriority, p_Pare
 	local s_Name = s_Screen.name
 
 	if s_Name == "UI/Flow/Screen/IngameMenuMP" then
-		print("IngameMenuMP, hidding ui")
+		--print("IngameMenuMP, hidding ui")
 		self.m_IsUIShown = false
 		WebUI:Hide()
 	end
 
 	if s_Name == "UI/Flow/Screen/SpawnScreenPC" then
-		print("SpawnScreenPC, showing ui")
+		--print("SpawnScreenPC, showing ui")
 		self.m_IsUIShown = true
 		WebUI:Show()
 	end
@@ -73,15 +94,30 @@ function MedicRadarClient:ClearUI()
 	WebUI:Hide()
 end
 
-function MedicRadarClient:ShowUI(p_Position)
-	print("Call from server: showui")
+function MedicRadarClient:ShowUI()
+	--print("ShowUI")
 
-	self.m_DeathPos = {x = p_Position.x, y = p_Position.y, z = p_Position.z}
-	print("Got position: " .. tostring(p_Position))
+	local s_LocalPlayer = PlayerManager:GetLocalPlayer()
+	if s_LocalPlayer == nil then
+		return
+	end 
+
+	local s_Position
+
+	if s_LocalPlayer.corpse ~= nil then
+		s_Position = s_LocalPlayer.corpse.transform
+		self.m_DeathPos = {x = s_Position.x, y = s_Position.y, z = s_Position.z}
+	else
+		return
+	end
+
+	self.m_DeathPos = {x = s_Position.x, y = s_Position.y, z = s_Position.z}
+	--print("Got position: " .. tostring(s_Position))
 	self.m_IsClientDead = true
 	self.m_IsUIShown = true
 
 	WebUI:Show()
+
 end
 
 function MedicRadarClient:OnPostFrameUpdate(p_Delta)
@@ -93,17 +129,30 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 		return
 	end
 
+	self.m_UpdateTimer = self.m_UpdateTimer + p_Delta
+
+	if self.m_UpdateTimer < self.UPDATE_RATE then
+		return
+	end
+	self.m_UpdateTimer = 0
+
 	local s_LocalPlayer = PlayerManager:GetLocalPlayer()
 
+	-- if the local player has a soldier he respawned or got revived.
+	if s_LocalPlayer.soldier ~= nil then
+		self:ClearUI()
+		return
+	end
+
 	local s_Players = PlayerManager:GetPlayers()
-	local s_MedicsWithDefib = ""
+	local s_MedicsWithDefib = {}
 
 	for s_Index, s_Player in pairs(s_Players) do 
 				
 		if s_LocalPlayer.name ~= s_Player.name and
 			s_LocalPlayer.teamID == s_Player.teamID then
 
-			--print("found player in same team")
+			----print("found player in same team")
 			local s_Soldier = s_Player.soldier
 			
 			if s_Soldier ~= nil then
@@ -116,16 +165,34 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 					local distance = math.floor( math.sqrt(distance2) )
 
 					if distance < self.MAX_DISTANCE then
-						s_MedicsWithDefib = s_MedicsWithDefib .. s_Player.name .. ": " .. tostring(distance) .. "m.|"
+						s_MedicsWithDefib[distance] = s_Player.name
 					end
 				end
 			end
 		end
 	end
-	-- s_MedicsWithDefib = s_MedicsWithDefib .. "Test" .. ": " .. 1 .. "m.|"
-	-- s_MedicsWithDefib = s_MedicsWithDefib .. "Test" .. ": " .. 2 .. "m.|"
-	-- s_MedicsWithDefib = s_MedicsWithDefib .. "Test" .. ": " .. 3 .. "m.|"
-	self:UpdateUI(s_MedicsWithDefib)
+
+	-- For debug:
+	-- s_MedicsWithDefib[10] = "FoolHen"
+	-- s_MedicsWithDefib[4] = "TestPlayer"
+	-- s_MedicsWithDefib[1] = "TestPlayer2"
+
+	local s_MedicsWithDefibString = ""
+
+	local i = 1
+
+	for distance, name in pairs(s_MedicsWithDefib) do
+		s_MedicsWithDefibString = s_MedicsWithDefibString .. name .." - "..tostring(distance) .. "m.|"
+
+		if i >= self.MAX_DISPLAY_NUMBER then
+			break
+		end
+		i = i + 1
+	end
+
+	-- print(s_MedicsWithDefibString)
+
+	self:UpdateUI(s_MedicsWithDefibString)
 end
 
 function MedicRadarClient:HasDefib(p_Soldier)

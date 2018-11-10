@@ -1,9 +1,9 @@
 {
 	"Name": "MedicRadar",
 	"Authors": [ "FoolHen" ],
-	"Description": "Show distance of medics nearby when dead",
+	"Description": "Show distance of nearby medics while down",
 	"URL": "http://veniceunleashed.net",
-	"Version": 1,
+	"Version": "1",
 	"HasWebUI": true,
 	"HasVeniceEXT": true
 }

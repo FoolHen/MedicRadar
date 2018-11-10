@@ -1,9 +1,9 @@
 @font-face {
-		font-family: "bffont";
+	font-family: "bffont";
 	src: url("bffont.ttf");
 }
 ::-webkit-scrollbar { 
-		display: none; 
+	display: none; 
 }
 #orangeRect {
 	background: linear-gradient(rgba(255, 156, 55, 0.96), rgba(181,109,35,0.96));
@@ -11,15 +11,26 @@
 	margin-left: 7.47%;
 	width:20.5%;
 	height: 4.3%;
+	
 }
+
+#playerList{
+	/*height: 4.3%;*/
+	/*background-color: rgba(41,0,63,0.4);	*/
+	display: flex;
+	flex-direction: column; 
+	margin-left: 7.47%;
+	bottom: 0;
+}
+
 .nameBox{
 	border:0;
 	background-color: rgba(41,56,63,0.8);	
 	margin-top: 0px;
-	margin-left: 7.47%;
-	width:20.5%;
+	margin-right: 5px;
+	width:22.15%;
 	height: 4.3%;
-}
+	}
 label{
 	/*font-family: '$MENU_medium';*/
 	font-family: bffont;
@@ -33,11 +44,12 @@ label{
 	margin-left:3%;
 	letter-spacing: 0.3px;
 }
+
 /* For resolutions lower than 720p */
 #page {
 	width: 100vw; 
 	height: 56.25vw; /* height:width ratio = 9/16 = .5625  */
-	/*background-color: rgba(256,256,256,0.5);*/
+	/*background-color: rgba(0,0,0,0.5);*/
 	max-height: 100vh;
 	max-width: 177.78vh; /* 16/9 = 1.778 */
 	margin: auto;
