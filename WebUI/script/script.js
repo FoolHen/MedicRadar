@@ -1,24 +1,36 @@
-function addText(text) {
-	var playerNames = text.split("|");
-	playerNames = playerNames.filter(e => e !== "");
+function addMedics(medics) {
+	if (typeof medics == 'object') {
+		medics = Object.values(medics);
+	}
 
-	removeAll();
+	removeAllMedics();
 	
-	for (var j = 0; j < playerNames.length; j++) {
-		var li = '<li class="nameBox" id="item' + j + '"><label>' + playerNames[j] + '</label></li>';
-		$('#playerList').append(li);
+	for (let j = 0; j < medics.length; j++) {
+		let medic = medics[j];
+		let li = '<li class="nameBox" id="item' + j + '"><label>' + medic.name + ' - ' + medic.distance + 'm</label></li>';
+		let el = document.getElementById("playerList"); 
+		el.innerHTML += li;
 	}
 }
 
-function removeAll(){
-	$('#playerList').empty();
+function removeAllMedics(){
+	let el = document.getElementById("playerList"); 
+	el.innerHTML = '';
 }
 
 fontsize = function () {
-	var size = $("#orangeRect").width() * 0.06;
-	$('label').css('font-size', size);
+	let el = document.getElementById("orangeRect"); 
+	let size = el.clientWidth * 0.06;
+
+	let pageEl = document.getElementById("page"); 
+	pageEl.style.fontSize = size + 'px';
 };
 
 
-$(window).resize(fontsize);
-$(document).ready(fontsize);
+window.onresize = function(event) {
+	fontsize();
+};
+
+window.onload = function(event) {
+	fontsize();
+};

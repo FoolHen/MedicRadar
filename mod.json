@@ -3,7 +3,10 @@
 	"Authors": [ "FoolHen" ],
 	"Description": "Show distance of nearby medics while down",
 	"URL": "http://veniceunleashed.net",
-	"Version": "1",
+	"Version": "1.0.0",
 	"HasWebUI": true,
-	"HasVeniceEXT": true
+	"HasVeniceEXT": true,
+	"Dependencies": {
+		"veniceext": "^1.0.0"
+	}
 }

@@ -6,7 +6,7 @@ function MedicRadarClient:__init()
 end
 
 function MedicRadarClient:RegisterVars()
-	self.m_DeathPos = {x=0, y=0, z=0}
+	self.m_DeathPos = { x = 0, y = 0, z = 0 }
 	self.m_IsClientDead = false
 	self.m_IsUIShown = true
 	self.m_UpdateTimer = 0
@@ -16,7 +16,7 @@ function MedicRadarClient:RegisterVars()
 end
 
 function MedicRadarClient:RegisterEvents()
-	self.m_OnLoadedEvent = Events:Subscribe('ExtensionLoaded', self, self.OnLoaded)
+	self.m_OnLoadedEvent = Events:Subscribe('Extension:Loaded', self, self.OnLoaded)
 	self.m_ClientFrameUpdateEvent = Events:Subscribe('Client:PostFrameUpdate', self, self.OnPostFrameUpdate)
 	self.m_ScreenHook = Hooks:Install('UI:PushScreen', 10, self, self.OnPushScreen)
 	self.m_HealthActionEvent = Events:Subscribe('ClientSoldier:HealthAction', self, self.OnHealthAction)
@@ -84,13 +84,13 @@ function MedicRadarClient:OnPushScreen(p_Hook, p_Screen, p_GraphPriority, p_Pare
 	p_Hook:Next()
 end
 
-function MedicRadarClient:UpdateUI(p_Medics)
-	WebUI:ExecuteJS('addText("' .. tostring(p_Medics) .. '")')
+function MedicRadarClient:UpdateUI(p_MedicsTable)
+	WebUI:ExecuteJS(string.format("addMedics(%s)", json.encode(p_MedicsTable)))
 end
 	
 function MedicRadarClient:ClearUI()
 	self.m_IsClientDead = false
-	WebUI:ExecuteJS('removeAll()')
+	WebUI:ExecuteJS("removeAllMedics()")
 	WebUI:Hide()
 end
 
@@ -102,22 +102,17 @@ function MedicRadarClient:ShowUI()
 		return
 	end 
 
-	local s_Position
-
-	if s_LocalPlayer.corpse ~= nil then
-		s_Position = s_LocalPlayer.corpse.transform
-		self.m_DeathPos = {x = s_Position.x, y = s_Position.y, z = s_Position.z}
-	else
+	if s_LocalPlayer.corpse == nil then
 		return
 	end
 
+	local s_Position = s_LocalPlayer.corpse.transform
 	self.m_DeathPos = {x = s_Position.x, y = s_Position.y, z = s_Position.z}
 	--print("Got position: " .. tostring(s_Position))
 	self.m_IsClientDead = true
 	self.m_IsUIShown = true
 
 	WebUI:Show()
-
 end
 
 function MedicRadarClient:OnPostFrameUpdate(p_Delta)
@@ -150,7 +145,7 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 	for s_Index, s_Player in pairs(s_Players) do 
 				
 		if s_LocalPlayer.name ~= s_Player.name and
-			s_LocalPlayer.teamID == s_Player.teamID then
+			s_LocalPlayer.teamId == s_Player.teamId then
 
 			----print("found player in same team")
 			local s_Soldier = s_Player.soldier
@@ -162,10 +157,10 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 						(self.m_DeathPos.x - s_Soldier.transform.trans.x) * (self.m_DeathPos.x - s_Soldier.transform.trans.x) + 
 						(self.m_DeathPos.y - s_Soldier.transform.trans.y) * (self.m_DeathPos.y - s_Soldier.transform.trans.y) +
 						(self.m_DeathPos.z - s_Soldier.transform.trans.z) * (self.m_DeathPos.z - s_Soldier.transform.trans.z)
-					local distance = math.floor( math.sqrt(distance2) )
+					local distance =  math.floor(math.sqrt(distance2))
 
-					if distance < self.MAX_DISTANCE then
-						s_MedicsWithDefib[distance] = s_Player.name
+					if distance <= self.MAX_DISTANCE then
+						table.insert(s_MedicsWithDefib,  { distance = distance, name = name })
 					end
 				end
 			end
@@ -173,32 +168,52 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 	end
 
 	-- For debug:
-	-- s_MedicsWithDefib[10] = "FoolHen"
-	-- s_MedicsWithDefib[4] = "TestPlayer"
-	-- s_MedicsWithDefib[1] = "TestPlayer2"
+	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "FoolHen" })
+	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer" })
+	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer2" })
+	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer3" })
+	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer4" })
+	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer5" })
+	-- table.insert(s_MedicsWithDefib,  { distance = 50, name =  "ShouldNeverShow" })
 
-	local s_MedicsWithDefibString = ""
-
-	local i = 1
-
-	for distance, name in pairs(s_MedicsWithDefib) do
-		s_MedicsWithDefibString = s_MedicsWithDefibString .. name .." - "..tostring(distance) .. "m.|"
-
+	-- Sort table by distance
+	table.sort(s_MedicsWithDefib, function(a, b) 
+		return a.distance < b.distance
+	end)
+	
+	-- Remove farthest players if the array exceeds the maximum number of displayed players.
+	for i = #s_MedicsWithDefib, 1, -1 do
 		if i >= self.MAX_DISPLAY_NUMBER then
-			break
+			s_MedicsWithDefib[i] = nil
 		end
-		i = i + 1
 	end
 
-	-- print(s_MedicsWithDefibString)
-
-	self:UpdateUI(s_MedicsWithDefibString)
+	self:UpdateUI(s_MedicsWithDefib)
 end
 
 function MedicRadarClient:HasDefib(p_Soldier)
-	local s_Gadget = tostring(p_Soldier:GetWeaponNameByIndex(5)):lower()
 
-	return s_Gadget == "defib"
+	if s_Soldier == nil then
+		return false
+	end
+
+	local s_WeaponsComponent = s_Soldier.weaponsComponent
+
+	if s_WeaponsComponent == nil then
+		return false
+	end
+
+	for i = 1, s_WeaponsComponent.weaponCount do
+		local s_Weapon = s_WeaponsComponent:GetWeapon(i - 1)
+
+		if s_Weapon ~= nil then
+			if string.find(s_Weapon.name:lower(), "defib") then
+				return true
+			end
+		end
+	end
+
+	return false
 end
 	
 g_MedicRadarClient = MedicRadarClient()
