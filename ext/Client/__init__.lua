@@ -1,13 +1,13 @@
 class "MedicRadarClient"
 
 function MedicRadarClient:__init()
+	print("Initializing MedicRadar")
 	self:RegisterVars()
 	self:RegisterEvents()
 end
 
 function MedicRadarClient:RegisterVars()
 	self.m_DeathPos = { x = 0, y = 0, z = 0 }
-	self.m_IsClientDead = false
 	self.m_IsUIShown = true
 	self.m_UpdateTimer = 0
 	self.MAX_DISTANCE = 50
@@ -18,40 +18,42 @@ end
 function MedicRadarClient:RegisterEvents()
 	self.m_OnLoadedEvent = Events:Subscribe('Extension:Loaded', self, self.OnLoaded)
 	self.m_ClientFrameUpdateEvent = Events:Subscribe('Client:PostFrameUpdate', self, self.OnPostFrameUpdate)
-	self.m_ScreenHook = Hooks:Install('UI:PushScreen', 10, self, self.OnPushScreen)
 	self.m_HealthActionEvent = Events:Subscribe('ClientSoldier:HealthAction', self, self.OnHealthAction)
 end
 
 function MedicRadarClient:OnLoaded()
-	--print("onloaded called")
+	--print("OnLoaded called")
 	WebUI:Init()
 	WebUI:Hide()
 end
 
+-- This function is called when the health satate of a soldier (including other players' soldiers) is changed.
 function MedicRadarClient:OnHealthAction(p_Soldier, p_HealthStateAction)
 	if p_Soldier == nil then
 		return
 	end
 
+	-- We only care about the local player's soldier, so we need to get it and compare with the given soldier.
 	local s_LocalPlayer = PlayerManager:GetLocalPlayer()
 	if s_LocalPlayer == nil then
 		return
 	end
 
-	local s_LocalSoldier = s_LocalPlayer.soldier
+	-- Player.soldier returns a SoldierEntity if the player is alive. Player.corpse returns a SoldierEntity if the player is down (revivable).
+	-- In Lua this will assign Player.soldier to s_LocalSoldier, and if it's nil it will assign Player.corpse
+	local s_LocalSoldier = s_LocalPlayer.soldier or s_LocalPlayer.corpse
 
+	-- If both .soldier and .corpse are nil it means that the player is completely dead (unrevivable).
 	if s_LocalSoldier == nil then
-		s_LocalSoldier = s_LocalPlayer.corpse
-
-		if s_LocalSoldier == nil then
-			return
-		end
+		return
 	end
 
+	-- We now can check if the given SoldierEntity is the local player's.
 	if  s_LocalSoldier ~= p_Soldier then
 		return
 	end
 
+	-- If it is, we can finally show/hide UI based on the health state.
 	if p_HealthStateAction == HealthStateAction.OnManDown then
 		--print("OnManDown")
 		self:ShowUI()
@@ -61,35 +63,12 @@ function MedicRadarClient:OnHealthAction(p_Soldier, p_HealthStateAction)
 	end
 end
 
-function MedicRadarClient:OnPushScreen(p_Hook, p_Screen, p_GraphPriority, p_ParentGraph)
-	if not self.m_IsClientDead then
-		return
-	end
-
-	local s_Screen = UIScreenAsset(p_Screen)
-	local s_Name = s_Screen.name
-
-	if s_Name == "UI/Flow/Screen/IngameMenuMP" then
-		--print("IngameMenuMP, hidding ui")
-		self.m_IsUIShown = false
-		WebUI:Hide()
-	end
-
-	if s_Name == "UI/Flow/Screen/SpawnScreenPC" then
-		--print("SpawnScreenPC, showing ui")
-		self.m_IsUIShown = true
-		WebUI:Show()
-	end
-
-	p_Hook:Next()
-end
-
 function MedicRadarClient:UpdateUI(p_MedicsTable)
 	WebUI:ExecuteJS(string.format("addMedics(%s)", json.encode(p_MedicsTable)))
 end
 	
 function MedicRadarClient:ClearUI()
-	self.m_IsClientDead = false
+	self.m_IsUIShown = false
 	WebUI:ExecuteJS("removeAllMedics()")
 	WebUI:Hide()
 end
@@ -97,38 +76,35 @@ end
 function MedicRadarClient:ShowUI()
 	--print("ShowUI")
 
+	-- Check if player exists and if he is down.
 	local s_LocalPlayer = PlayerManager:GetLocalPlayer()
-	if s_LocalPlayer == nil then
-		return
-	end 
-
-	if s_LocalPlayer.corpse == nil then
+	if s_LocalPlayer == nil or s_LocalPlayer.corpse == nil then
 		return
 	end
 
+	-- Get and save death position.
 	local s_Position = s_LocalPlayer.corpse.transform
 	self.m_DeathPos = {x = s_Position.x, y = s_Position.y, z = s_Position.z}
-	--print("Got position: " .. tostring(s_Position))
-	self.m_IsClientDead = true
+
 	self.m_IsUIShown = true
 
+	-- Show the mod UI.
 	WebUI:Show()
 end
 
 function MedicRadarClient:OnPostFrameUpdate(p_Delta)
-	if not self.m_IsClientDead then 
-		return
-	end
-
+	-- Don't update if the UI is hidden.
 	if not self.m_IsUIShown then 
 		return
 	end
 
+	-- We make a simple timer so we only udpate UI every so often.
 	self.m_UpdateTimer = self.m_UpdateTimer + p_Delta
 
 	if self.m_UpdateTimer < self.UPDATE_RATE then
 		return
 	end
+
 	self.m_UpdateTimer = 0
 
 	local s_LocalPlayer = PlayerManager:GetLocalPlayer()
@@ -142,23 +118,25 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 	local s_Players = PlayerManager:GetPlayers()
 	local s_MedicsWithDefib = {}
 
+	-- Now we loop through all players.
 	for s_Index, s_Player in pairs(s_Players) do 
-				
-		if s_LocalPlayer.name ~= s_Player.name and
-			s_LocalPlayer.teamId == s_Player.teamId then
+		
+		-- We filter players in the team and exclude the local player. 
+		if s_LocalPlayer.name ~= s_Player.name and s_LocalPlayer.teamId == s_Player.teamId then
 
-			----print("found player in same team")
 			local s_Soldier = s_Player.soldier
 			
 			if s_Soldier ~= nil then
-
+				-- If they have a soldier we check if they have a defib in their kits.
 				if self:HasDefib(s_Soldier) then
+					-- Some math to calc the distance between the player and the death position.
 					local distance2 =  
 						(self.m_DeathPos.x - s_Soldier.transform.trans.x) * (self.m_DeathPos.x - s_Soldier.transform.trans.x) + 
 						(self.m_DeathPos.y - s_Soldier.transform.trans.y) * (self.m_DeathPos.y - s_Soldier.transform.trans.y) +
 						(self.m_DeathPos.z - s_Soldier.transform.trans.z) * (self.m_DeathPos.z - s_Soldier.transform.trans.z)
 					local distance =  math.floor(math.sqrt(distance2))
 
+					-- We filter those players that are out of range. The rest are saved in an array.
 					if distance <= self.MAX_DISTANCE then
 						table.insert(s_MedicsWithDefib,  { distance = distance, name = name })
 					end
@@ -169,19 +147,19 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 
 	-- For debug:
 	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "FoolHen" })
-	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer" })
+	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer1" })
 	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer2" })
 	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer3" })
 	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer4" })
 	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer5" })
 	-- table.insert(s_MedicsWithDefib,  { distance = 50, name =  "ShouldNeverShow" })
 
-	-- Sort table by distance
+	-- Sort medics array by distance
 	table.sort(s_MedicsWithDefib, function(a, b) 
 		return a.distance < b.distance
 	end)
 	
-	-- Remove farthest players if the array exceeds the maximum number of displayed players.
+	-- Remove farthest players if the array exceeds the maximum number of allowed players in UI.
 	for i = #s_MedicsWithDefib, 1, -1 do
 		if i >= self.MAX_DISPLAY_NUMBER then
 			s_MedicsWithDefib[i] = nil
@@ -203,10 +181,12 @@ function MedicRadarClient:HasDefib(p_Soldier)
 		return false
 	end
 
+	-- Loop through all weapons the soldier has, and check their names.
 	for i = 1, s_WeaponsComponent.weaponCount do
 		local s_Weapon = s_WeaponsComponent:GetWeapon(i - 1)
 
 		if s_Weapon ~= nil then
+			-- Check if the name has defib in it.
 			if string.find(s_Weapon.name:lower(), "defib") then
 				return true
 			end

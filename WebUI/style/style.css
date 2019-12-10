@@ -5,6 +5,33 @@
 ::-webkit-scrollbar { 
 	display: none; 
 }
+
+
+/*  Vanilla UI keeps a fixed aspect ratio of 16/9 that fits the whole screen
+	Above 720p this aspect ratio is kept at that resolution and doesn't grow any longer.
+ */
+#page {
+	width: 100vw; 
+	height: 56.25vw; /* height:width ratio = 9/16 = .5625  */
+	/*background-color: rgba(0,0,0,0.5);*/
+	max-height: 100vh;
+	max-width: 177.78vh; /* 16/9 = 1.778 */
+	margin: auto;
+	position: absolute;
+	top:0;bottom:0; /* vertical center */
+	left:0;right:0; /* horizontal center */
+	overflow: visible;
+}
+
+
+/* For resolutions higher than 720p */
+@media screen and (min-height: 720px) and (min-width: 1280px){
+	#page {
+		width: 1280px; 
+		height: 720px;
+	}
+}
+
 #orangeRect {
 	background: linear-gradient(rgba(255, 156, 55, 0.96), rgba(181,109,35,0.96));
 	margin-top: 48.6%;
@@ -43,27 +70,4 @@ label{
 	line-height:1.7em;
 	margin-left:3%;
 	letter-spacing: 0.3px;
-}
-
-/* For resolutions lower than 720p */
-#page {
-	width: 100vw; 
-	height: 56.25vw; /* height:width ratio = 9/16 = .5625  */
-	/*background-color: rgba(0,0,0,0.5);*/
-	max-height: 100vh;
-	max-width: 177.78vh; /* 16/9 = 1.778 */
-	margin: auto;
-	position: absolute;
-	top:0;bottom:0; /* vertical center */
-	left:0;right:0; /* horizontal center */
-	overflow: visible;
-}
-
-
-/* For resolutions higher than 720p */
-@media screen and (min-height: 720px) and (min-width: 1280px){
-	#page {
-		width: 1280px; 
-		height: 720px;
-	}
 }
