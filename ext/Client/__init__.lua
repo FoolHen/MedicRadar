@@ -18,11 +18,10 @@ end
 function MedicRadarClient:RegisterEvents()
 	self.m_OnLoadedEvent = Events:Subscribe('Extension:Loaded', self, self.OnLoaded)
 	self.m_ClientFrameUpdateEvent = Events:Subscribe('Client:PostFrameUpdate', self, self.OnPostFrameUpdate)
-	self.m_HealthActionEvent = Events:Subscribe('ClientSoldier:HealthAction', self, self.OnHealthAction)
+	self.m_HealthActionEvent = Events:Subscribe('Soldier:HealthAction', self, self.OnHealthAction)
 end
 
 function MedicRadarClient:OnLoaded()
-	--print("OnLoaded called")
 	WebUI:Init()
 	WebUI:Hide()
 end
@@ -55,10 +54,8 @@ function MedicRadarClient:OnHealthAction(p_Soldier, p_HealthStateAction)
 
 	-- If it is, we can finally show/hide UI based on the health state.
 	if p_HealthStateAction == HealthStateAction.OnManDown then
-		--print("OnManDown")
 		self:ShowUI()
 	elseif p_HealthStateAction == HealthStateAction.OnDead then
-		--print("OnDead")
 		self:ClearUI()
 	end
 end
@@ -74,8 +71,6 @@ function MedicRadarClient:ClearUI()
 end
 
 function MedicRadarClient:ShowUI()
-	--print("ShowUI")
-
 	-- Check if player exists and if he is down.
 	local s_LocalPlayer = PlayerManager:GetLocalPlayer()
 	if s_LocalPlayer == nil or s_LocalPlayer.corpse == nil then
@@ -109,21 +104,17 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 
 	local s_LocalPlayer = PlayerManager:GetLocalPlayer()
 
-	-- if the local player has a soldier he respawned or got revived.
-	if s_LocalPlayer.soldier ~= nil then
-		self:ClearUI()
+	-- Only continue if the local player is in man down state
+	if s_LocalPlayer == nil or s_LocalPlayer.corpse == nil then
 		return
 	end
 
-	local s_Players = PlayerManager:GetPlayers()
 	local s_MedicsWithDefib = {}
 
 	-- Now we loop through all players.
-	for s_Index, s_Player in pairs(s_Players) do 
-		
+	for s_Index, s_Player in pairs(PlayerManager:GetPlayers()) do 
 		-- We filter players in the team and exclude the local player. 
 		if s_LocalPlayer.name ~= s_Player.name and s_LocalPlayer.teamId == s_Player.teamId then
-
 			local s_Soldier = s_Player.soldier
 			
 			if s_Soldier ~= nil then
@@ -146,13 +137,13 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 	end
 
 	-- For debug:
-	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "FoolHen" })
-	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer1" })
-	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer2" })
-	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer3" })
-	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer4" })
-	-- table.insert(s_MedicsWithDefib,  { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer5" })
-	-- table.insert(s_MedicsWithDefib,  { distance = 50, name =  "ShouldNeverShow" })
+	-- table.insert(s_MedicsWithDefib, { distance = MathUtils:GetRandomInt(1, 49), name = "FoolHen" })
+	-- table.insert(s_MedicsWithDefib, { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer1" })
+	-- table.insert(s_MedicsWithDefib, { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer2" })
+	-- table.insert(s_MedicsWithDefib, { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer3" })
+	-- table.insert(s_MedicsWithDefib, { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer4" })
+	-- table.insert(s_MedicsWithDefib, { distance = MathUtils:GetRandomInt(1, 49), name = "TestPlayer5" })
+	-- table.insert(s_MedicsWithDefib, { distance = 50, name =  "ShouldNeverShow" })
 
 	-- Sort medics array by distance
 	table.sort(s_MedicsWithDefib, function(a, b) 
