@@ -2,10 +2,11 @@
 	"Name": "MedicRadar",
 	"Authors": [ "FoolHen" ],
 	"Description": "Show distance of nearby medics while down",
-	"URL": "http://veniceunleashed.net",
+	"URL": "https://github.com/FoolHen/MedicRadar",
 	"Version": "1.0.0",
 	"HasWebUI": true,
 	"HasVeniceEXT": true,
+	"Tags": ["medicradar"],
 	"Dependencies": {
 		"veniceext": "^1.0.0"
 	}

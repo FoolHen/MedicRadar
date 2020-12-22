@@ -7,7 +7,7 @@ function MedicRadarClient:__init()
 end
 
 function MedicRadarClient:RegisterVars()
-	self.m_DeathPos = { x = 0, y = 0, z = 0 }
+	self.m_DeathPos = Vec3()
 	self.m_IsUIShown = true
 	self.m_UpdateTimer = 0
 	self.MAX_DISTANCE = 50
@@ -55,7 +55,8 @@ function MedicRadarClient:OnHealthAction(p_Soldier, p_HealthStateAction)
 	-- If it is, we can finally show/hide UI based on the health state.
 	if p_HealthStateAction == HealthStateAction.OnManDown then
 		self:ShowUI()
-	elseif p_HealthStateAction == HealthStateAction.OnDead then
+	elseif p_HealthStateAction == HealthStateAction.OnDead or
+			p_HealthStateAction == HealthStateAction.OnRevive then
 		self:ClearUI()
 	end
 end
@@ -78,8 +79,8 @@ function MedicRadarClient:ShowUI()
 	end
 
 	-- Get and save death position.
-	local s_Position = s_LocalPlayer.corpse.transform
-	self.m_DeathPos = {x = s_Position.x, y = s_Position.y, z = s_Position.z}
+	local s_Position = s_LocalPlayer.corpse.transform.trans
+	self.m_DeathPos = s_LocalPlayer.corpse.transform.trans:Clone()
 
 	self.m_IsUIShown = true
 
@@ -114,22 +115,16 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 	-- Now we loop through all players.
 	for s_Index, s_Player in pairs(PlayerManager:GetPlayers()) do 
 		-- We filter players in the team and exclude the local player. 
-		if s_LocalPlayer.name ~= s_Player.name and s_LocalPlayer.teamId == s_Player.teamId then
-			local s_Soldier = s_Player.soldier
-			
-			if s_Soldier ~= nil then
+		if s_LocalPlayer.name ~= s_Player.name and s_LocalPlayer.teamId == s_Player.teamId then			
+			if s_Player.soldier ~= nil then
 				-- If they have a soldier we check if they have a defib in their kits.
-				if self:HasDefib(s_Soldier) then
+				if self:HasDefib(s_Player) then
+					local s_Pos = s_Player.soldier.transform.trans
 					-- Some math to calc the distance between the player and the death position.
-					local distance2 =  
-						(self.m_DeathPos.x - s_Soldier.transform.trans.x) * (self.m_DeathPos.x - s_Soldier.transform.trans.x) + 
-						(self.m_DeathPos.y - s_Soldier.transform.trans.y) * (self.m_DeathPos.y - s_Soldier.transform.trans.y) +
-						(self.m_DeathPos.z - s_Soldier.transform.trans.z) * (self.m_DeathPos.z - s_Soldier.transform.trans.z)
-					local distance =  math.floor(math.sqrt(distance2))
-
+					local distance = s_Pos:Distance(self.m_DeathPos)
 					-- We filter those players that are out of range. The rest are saved in an array.
 					if distance <= self.MAX_DISTANCE then
-						table.insert(s_MedicsWithDefib,  { distance = distance, name = name })
+						table.insert(s_MedicsWithDefib,  { distance = math.floor(distance), name = s_Player.name })
 					end
 				end
 			end
@@ -160,25 +155,22 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 	self:UpdateUI(s_MedicsWithDefib)
 end
 
-function MedicRadarClient:HasDefib(p_Soldier)
-
-	if s_Soldier == nil then
+function MedicRadarClient:HasDefib(s_Player)
+	if s_Player == nil or s_Player.soldier == nil then
 		return false
 	end
 
-	local s_WeaponsComponent = s_Soldier.weaponsComponent
+	local s_WeaponsComponent = s_Player.soldier.weaponsComponent
 
 	if s_WeaponsComponent == nil then
 		return false
 	end
 
 	-- Loop through all weapons the soldier has, and check their names.
-	for i = 1, s_WeaponsComponent.weaponCount do
-		local s_Weapon = s_WeaponsComponent:GetWeapon(i - 1)
-
-		if s_Weapon ~= nil then
+	for _, l_Weapon in pairs(s_WeaponsComponent.weapons) do
+		if l_Weapon ~= nil then
 			-- Check if the name has defib in it.
-			if string.find(s_Weapon.name:lower(), "defib") then
+			if string.find(l_Weapon.name:lower(), "defib") then
 				return true
 			end
 		end
