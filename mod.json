@@ -3,7 +3,7 @@
 	"Authors": [ "FoolHen" ],
 	"Description": "Show distance of nearby medics while down",
 	"URL": "https://github.com/FoolHen/MedicRadar",
-	"Version": "1.0.0",
+	"Version": "1.0.1",
 	"HasWebUI": true,
 	"HasVeniceEXT": true,
 	"Tags": ["medicradar"],
