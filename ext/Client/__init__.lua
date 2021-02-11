@@ -107,6 +107,7 @@ function MedicRadarClient:OnPostFrameUpdate(p_Delta)
 
 	-- Only continue if the local player is in man down state
 	if s_LocalPlayer == nil or s_LocalPlayer.corpse == nil then
+		self:ClearUI()
 		return
 	end
 
