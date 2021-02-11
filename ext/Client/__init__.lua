@@ -55,8 +55,9 @@ function MedicRadarClient:OnHealthAction(p_Soldier, p_HealthStateAction)
 	-- If it is, we can finally show/hide UI based on the health state.
 	if p_HealthStateAction == HealthStateAction.OnManDown then
 		self:ShowUI()
-	elseif p_HealthStateAction == HealthStateAction.OnDead or
-			p_HealthStateAction == HealthStateAction.OnRevive then
+	elseif p_HealthStateAction == HealthStateAction.OnDead or 
+		p_HealthStateAction == HealthStateAction.OnRevive or 
+		p_HealthStateAction == HealthStateAction.OnReviveDone then
 		self:ClearUI()
 	end
 end
