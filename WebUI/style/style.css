@@ -1,73 +1,73 @@
 @font-face {
-	font-family: "bffont";
-	src: url("bffont.ttf");
-}
-::-webkit-scrollbar { 
-	display: none; 
+  font-family: "bffont";
+  src: url("bffont.ttf");
 }
 
+body {
+  width: 100%;
+  height: 100%;
+}
 
-/*  Vanilla UI keeps a fixed aspect ratio of 16/9 that fits the whole screen
+/* 
+	Vanilla UI keeps a fixed aspect ratio of 16/9 that fits the whole screen
 	Above 720p this aspect ratio is kept at that resolution and doesn't grow any longer.
- */
+*/
 #page {
-	width: 100vw; 
-	height: 56.25vw; /* height:width ratio = 9/16 = .5625  */
-	/*background-color: rgba(0,0,0,0.5);*/
-	max-height: 100vh;
-	max-width: 177.78vh; /* 16/9 = 1.778 */
-	margin: auto;
-	position: absolute;
-	top:0;bottom:0; /* vertical center */
-	left:0;right:0; /* horizontal center */
-	overflow: visible;
+  width: 100vw;
+  height: 56.25vw; /* height:width ratio = 9/16 = .5625  */
+  max-height: 100vh;
+  max-width: 177.78vh; /* 16/9 = 1.778 */
+  margin: auto;
+  position: absolute;
+  top: 0;
+  bottom: 0; /* vertical center */
+  left: 0;
+  right: 0; /* horizontal center */
+  overflow: visible;
 }
-
 
 /* For resolutions higher than 720p */
-@media screen and (min-height: 720px) and (min-width: 1280px){
-	#page {
-		width: 1280px; 
-		height: 720px;
-	}
+@media screen and (min-height: 720px) and (min-width: 1280px) {
+  #page {
+    width: 1280px;
+    height: 720px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
 
 #orangeRect {
-	background: linear-gradient(rgba(255, 156, 55, 0.96), rgba(181,109,35,0.96));
-	margin-top: 48.6%;
-	margin-left: 7.47%;
-	width:20.5%;
-	height: 4.3%;
-	
+  background: linear-gradient(rgba(255, 156, 55, 0.96), rgba(181, 109, 35, 0.96));
+  margin-top: 48.6%;
+  margin-left: 7.47%;
+  width: 20.5%;
+  height: 4.3%;
 }
 
-#playerList{
-	/*height: 4.3%;*/
-	/*background-color: rgba(41,0,63,0.4);	*/
-	display: flex;
-	flex-direction: column; 
-	margin-left: 7.47%;
-	bottom: 0;
+#playerList {
+  /*height: 4.3%;*/
+  /*background-color: rgba(41,0,63,0.4);	*/
+  margin-left: 7.47%;
+  bottom: 0;
 }
 
-.nameBox{
-	border:0;
-	background-color: rgba(41,56,63,0.8);	
-	margin-top: 0px;
-	margin-right: 5px;
-	width:22.15%;
-	height: 4.3%;
-	}
-label{
-	/*font-family: '$MENU_medium';*/
-	font-family: bffont;
-	color: white;
-	text-shadow:2px 2px 10px #7fccff;
-	display: block;
-	overflow: hidden;
-	white-space: nowrap;
-	vertical-align: middle;
-	line-height:1.7em;
-	margin-left:3%;
-	letter-spacing: 0.3px;
+.nameBox {
+  border: 0;
+  background-color: rgba(41, 56, 63, 0.8);
+  margin-top: 0px;
+  margin-right: 5px;
+  width: 22.15%;
+  /* height: 4.3%; */
+}
+label {
+  font-family: "bffont";
+  color: white;
+  text-shadow: 2px 2px 10px #7fccff;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 1.7em;
+  margin-left: 3%;
+  letter-spacing: 0.3px;
 }
